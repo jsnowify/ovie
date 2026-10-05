@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --cream: #fff9e8;
+  --ink: #28251d;
+  --clay: #9b4915;
+
+  /* Side spacing for all content. Backgrounds/video stay full width. */
+  --gutter: 10px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: var(--cream);
+  --color-ink: var(--ink);
+  --color-clay: var(--clay);
+  --font-sans: var(--font-sora);
+  --spacing-gutter: var(--gutter); /* enables px-gutter, left-gutter, etc. */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-sora), system-ui, sans-serif;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+
+/* Logo: cream shape (the SVG as a mask) with a clay fill rising bottom -> top on hover */
+.logo-fill {
+  /* One gradient layer + a plain background-color, so background-size can
+     interpolate. (A second layer with `auto` size made it flip instantly.) */
+  background-color: var(--cream);
+  background-image: linear-gradient(var(--clay), var(--clay));
+  background-repeat: no-repeat;
+  background-position: top;
+  background-size: 100% 0%;
+  -webkit-mask: url("/ovie.svg") center / contain no-repeat;
+  mask: url("/ovie.svg") center / contain no-repeat;
+  /* Only the size animates. The position flips instantly, so the fill
+     enters from the bottom and leaves through the top. */
+  transition: background-size 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.logo:hover .logo-fill,
+.logo:focus-visible .logo-fill {
+  background-position: bottom;
+  background-size: 100% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-fill {
+    transition: none;
+  }
+}
+
+/* Text selection (the highlight) uses the brand colors instead of default blue */
+::selection {
+  background: var(--clay);
+  color: var(--cream);
+}
+
+/* Loader mark: the logo as a mask. Dim base, cream fill that rises with progress (set from JS). */
+.loader-mark {
+  background-color: color-mix(in srgb, var(--cream) 18%, transparent);
+  background-image: linear-gradient(var(--cream), var(--cream));
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 100% 0%;
+  -webkit-mask: url("/ovie.svg") center / contain no-repeat;
+  mask: url("/ovie.svg") center / contain no-repeat;
 }
