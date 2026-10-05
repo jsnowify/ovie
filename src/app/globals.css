@@ -48,7 +48,7 @@ html.lenis body {
 .logo-fill {
   /* One gradient layer + a plain background-color, so background-size can
      interpolate. (A second layer with `auto` size made it flip instantly.) */
-  background-color: var(--cream);
+  background-color: currentColor;
   background-image: linear-gradient(var(--clay), var(--clay));
   background-repeat: no-repeat;
   background-position: top;
@@ -57,7 +57,9 @@ html.lenis body {
   mask: url("/ovie.svg") center / contain no-repeat;
   /* Only the size animates. The position flips instantly, so the fill
      enters from the bottom and leaves through the top. */
-  transition: background-size 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+  transition:
+    background-size 0.6s cubic-bezier(0.76, 0, 0.24, 1),
+    background-color 0.3s ease;
 }
 .logo:hover .logo-fill,
 .logo:focus-visible .logo-fill {
@@ -85,4 +87,53 @@ html.lenis body {
   background-size: 100% 0%;
   -webkit-mask: url("/ovie.svg") center / contain no-repeat;
   mask: url("/ovie.svg") center / contain no-repeat;
+}
+
+/* Hide the scrollbar (the page still scrolls with wheel, touch, keyboard) */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, new Edge */
+}
+
+/* Selected work title. The size is the normal responsive size times --fit
+   (1 = as designed, lower = shrunk to fit). --fit is set from JS, see
+   hooks/useFitText.ts. The card and the expanding copy share this class so
+   they always match. */
+.fit-title {
+  font-size: calc(clamp(1.75rem, 3.2vw, 3rem) * var(--fit, 1));
+}
+
+/* Selected work: hovering one work dims it and blurs all the others.
+   The blur is a backdrop-filter layer, so it stays clipped to each card. */
+.work-dim {
+  opacity: 0;
+  transition: opacity 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.work-blur {
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition:
+    backdrop-filter 0.6s cubic-bezier(0.76, 0, 0.24, 1),
+    -webkit-backdrop-filter 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+@media (hover: hover) {
+  .work-link:is(:hover, :focus-visible) .work-dim {
+    opacity: 1;
+  }
+  .works-list:has(.work-link:is(:hover, :focus-visible))
+    .work:not(:has(.work-link:is(:hover, :focus-visible)))
+    .work-blur {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-dim,
+  .work-blur {
+    transition: none;
+  }
 }

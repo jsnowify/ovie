@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useLoader } from "@/providers/LoaderProvider";
+import { useLenis } from "@/providers/SmoothScroll";
+import { restoreScroll, takeOverScrollRestoration } from "@/lib/pageScroll";
 
 const MIN_MS = 1.6; // never flash by faster than this (seconds)
 const MAX_MS = 7; // never hang longer than this (seconds)
@@ -12,12 +14,15 @@ export default function Loader() {
   const mark = useRef<HTMLDivElement>(null);
   const count = useRef<HTMLSpanElement>(null);
   const { setReady } = useLoader();
+  const lenisRef = useLenis();
   const [done, setDone] = useState(false);
 
   useGSAP(
     () => {
       const html = document.documentElement;
       html.style.overflow = "hidden";
+      // Refresh keeps the scroll position (restored below, behind the loader).
+      takeOverScrollRestoration();
       window.scrollTo(0, 0);
 
       const reduce = window.matchMedia(
@@ -36,7 +41,10 @@ export default function Loader() {
       };
 
       const finish = () => {
-        html.style.overflow = "";
+        // A case study reopened after a refresh keeps the page locked itself.
+        if (!document.querySelector('[role="dialog"][aria-modal="true"]')) {
+          html.style.overflow = "";
+        }
         setDone(true);
       };
 
@@ -78,6 +86,9 @@ export default function Loader() {
           onUpdate: render,
           onComplete: () => {
             render();
+            // Page is fully laid out (fonts ready). Jump back to where the
+            // visitor was before the loader lifts. No-op on a fresh visit.
+            restoreScroll(lenisRef.current);
             exit();
           },
         });
@@ -120,7 +131,10 @@ export default function Loader() {
 
       return () => {
         alive = false;
-        html.style.overflow = "";
+        // Don't unlock the page if a case study reopened after the refresh.
+        if (!document.querySelector('[role="dialog"][aria-modal="true"]')) {
+          html.style.overflow = "";
+        }
       };
     },
     { scope: root },

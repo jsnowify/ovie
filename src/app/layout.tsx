@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Sora } from "next/font/google";
 import SmoothScroll from "@/providers/SmoothScroll";
 import LoaderProvider from "@/providers/LoaderProvider";
+import CaseStudyProvider from "@/providers/CaseStudyProvider";
 import Loader from "@/components/layout/Loader";
 import Header from "@/components/layout/Header";
+import StickyCta from "@/components/layout/StickyCta";
 import { site } from "@/config/site";
 import "./globals.css";
 
@@ -29,7 +31,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SmoothScroll>
             <Loader />
             <Header />
-            {children}
+            <StickyCta />
+            <CaseStudyProvider>{children}</CaseStudyProvider>
           </SmoothScroll>
         </LoaderProvider>
       </body>

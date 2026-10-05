@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useMutedVideo } from "@/hooks/useMutedVideo";
 import { hero } from "@/config/site";
-import Button from "@/components/ui/Button";
 import { useLoader } from "@/providers/LoaderProvider";
 
 export default function Hero() {
@@ -37,6 +36,28 @@ export default function Hero() {
             { yPercent: 300, duration: 1.1, stagger: 0.1 },
             0.9,
           );
+
+        // While the Selected Work panel slides up over the (sticky) hero, the hero
+        // drifts up a little and dims, so the panel feels like it lands on top of it.
+        const works = document.getElementById("works");
+        if (works) {
+          const scrollTrigger = {
+            trigger: works,
+            start: "top bottom",
+            end: "top top",
+            scrub: true,
+          };
+          gsap.to("[data-hero-inner]", {
+            yPercent: -10,
+            ease: "none",
+            scrollTrigger,
+          });
+          gsap.to("[data-hero-dim]", {
+            opacity: 0.7,
+            ease: "none",
+            scrollTrigger,
+          });
+        }
       });
 
       return () => mm.revert();
@@ -47,52 +68,53 @@ export default function Hero() {
   return (
     <section
       ref={root}
-      className="relative h-svh w-full overflow-hidden bg-ink text-cream"
+      className="sticky top-0 h-svh w-full overflow-hidden bg-ink text-cream"
     >
-      <video
-        ref={video}
-        data-video
-        className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <source src={hero.video.webm} type="video/webm" />
-        <source src={hero.video.mp4} type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-ink/50" aria-hidden="true" />
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/30"
-        aria-hidden="true"
-      />
+      <div data-hero-inner className="absolute inset-0">
+        <video
+          ref={video}
+          data-video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        >
+          <source src={hero.video.webm} type="video/webm" />
+          <source src={hero.video.mp4} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-ink/50" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/30"
+          aria-hidden="true"
+        />
 
-      <div className="absolute inset-0 z-10 flex items-center justify-center px-gutter">
-        <h1 className="text-center text-[clamp(2rem,4.6vw,4.75rem)] font-medium uppercase leading-[0.95] tracking-[-0.05em]">
-          {hero.headline.map((line) => (
-            <span key={line} className="block overflow-hidden pb-[0.08em]">
-              <span data-line className="block">
-                {line}
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-gutter">
+          <h1 className="text-center text-[clamp(2rem,4.6vw,4.75rem)] font-medium uppercase leading-[0.95] tracking-[-0.05em]">
+            {hero.headline.map((line) => (
+              <span key={line} className="block overflow-hidden pb-[0.08em]">
+                <span data-line className="block">
+                  {line}
+                </span>
               </span>
-            </span>
-          ))}
-        </h1>
-      </div>
+            ))}
+          </h1>
+        </div>
 
-      <p
-        data-rise
-        className="absolute bottom-6 left-gutter z-10 max-w-[19rem] text-[0.8rem] font-normal uppercase leading-[1.05] tracking-[-0.03em] md:bottom-8 md:text-sm"
-      >
-        {hero.description}
-      </p>
-
-      <div className="absolute inset-x-0 bottom-6 z-10 flex justify-center md:bottom-8">
-        <Button href={hero.cta.href} data-rise>
-          {hero.cta.label}
-        </Button>
+        <p
+          data-rise
+          className="absolute bottom-6 left-gutter z-10 max-w-[19rem] text-[0.8rem] font-normal uppercase leading-[1.05] tracking-[-0.03em] md:bottom-8 md:text-sm"
+        >
+          {hero.description}
+        </p>
       </div>
+      <div
+        data-hero-dim
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-ink opacity-0"
+      />
     </section>
   );
 }

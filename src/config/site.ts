@@ -14,6 +14,14 @@ export const hero = {
   cta: { label: "Start a project", href: "#contact" },
 } as const;
 
+// Introduction section (id="about"). Its two photos are picked at random from the projects.
+export const intro = {
+  headline: "Built with intention.",
+  lead: "Ovie is an architecture studio exploring the relationship between mass, material, and human space.",
+  caption:
+    "We believe architecture should feel grounded, purposeful, and honest. Every structure begins with its function, responds to its surroundings, and leaves only what needs to remain.",
+};
+
 export type MenuItem = {
   label: string;
   href?: string;

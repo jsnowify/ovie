@@ -6,11 +6,13 @@ import Logo from "@/components/ui/Logo";
 import MenuButton from "@/components/ui/MenuButton";
 import MenuPanel from "@/components/layout/MenuPanel";
 import { useLoader } from "@/providers/LoaderProvider";
+import { useOverLight } from "@/hooks/useOverLight";
 
 export default function Header() {
   const root = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
+  const onLight = useOverLight("top"); // over the cream Selected Work panel
   const { ready } = useLoader();
 
   useGSAP(
@@ -38,6 +40,9 @@ export default function Header() {
     { scope: root, dependencies: [ready] },
   );
 
+  // The open menu is always dark (ink), so keep the header light then.
+  const tone = open || !onLight ? "text-cream" : "text-ink";
+
   return (
     <>
       <MenuPanel open={open} onClose={close} />
@@ -45,7 +50,7 @@ export default function Header() {
       {/* pointer-events-none so the empty strip never blocks the overlay click */}
       <header
         ref={root}
-        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between px-gutter pt-5 text-cream md:pt-8"
+        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between px-gutter pt-5 transition-colors duration-300 md:pt-8 ${tone}`}
       >
         <div data-rise className="pointer-events-auto">
           <Logo />

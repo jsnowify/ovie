@@ -6,6 +6,8 @@ type Props = {
   stagger?: number;
   /** Draws a line under the text on hover (in from the left, out to the right) */
   underline?: boolean;
+  /** Hidden until hover: the text rises in per character instead of swapping */
+  reveal?: boolean;
   className?: string;
 };
 
@@ -18,6 +20,7 @@ export default function RollText({
   children,
   stagger = 20,
   underline = false,
+  reveal = false,
   className = "leading-[1.2]",
 }: Props) {
   const chars = Array.from(children);
@@ -33,7 +36,7 @@ export default function RollText({
             // overflow-y-clip keeps tight letter-spacing from clipping glyph edges
             <span key={i} className="relative inline-block overflow-y-clip">
               <span
-                className={`block transition-transform duration-500 ${EASE} group-hover/roll:-translate-y-full group-focus-visible/roll:-translate-y-full motion-reduce:transition-none`}
+                className={`block ${reveal ? "opacity-0" : ""} transition-transform duration-500 ${EASE} group-hover/roll:-translate-y-full group-focus-visible/roll:-translate-y-full motion-reduce:transition-none`}
                 style={style}
               >
                 {c}
