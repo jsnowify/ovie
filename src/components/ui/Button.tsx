@@ -11,6 +11,7 @@ export default function Button({ children, className = "", ...props }: Props) {
   return (
     <Link
       {...props}
+      data-hover-disabled
       className={`group group/roll relative inline-block overflow-hidden border border-current/20 bg-current/10 px-10 py-4 text-sm font-light uppercase tracking-[-0.02em] backdrop-blur-xl transition-colors duration-500 hover:border-clay hover:text-cream motion-reduce:transition-none md:text-base ${className}`}
     >
       {/* Slider: wipes in from the left on hover, wipes out to the right on leave */}

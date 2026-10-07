@@ -56,7 +56,15 @@ export function useFitText(
       };
     }
 
-    const ro = new ResizeObserver(fit);
+    // Changing --fit can resize the heading's height. Only its width
+    // affects fitting; ignoring height notifications avoids fitting twice.
+    let lastWidth = box.clientWidth;
+    const ro = new ResizeObserver(() => {
+      const width = box.clientWidth;
+      if (width === lastWidth) return;
+      lastWidth = width;
+      fit();
+    });
     ro.observe(box);
     return () => {
       cancelled = true;

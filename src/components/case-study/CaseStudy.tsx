@@ -6,8 +6,10 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { useLenis } from "@/providers/SmoothScroll";
 import { useFitText } from "@/hooks/useFitText";
 import { designProcess, type Project } from "@/data/projects";
+import { scrollKey } from "@/lib/caseStudyScroll";
+import { WORK_COVER_SIZES } from "@/lib/imageSizes";
 
-// Same `sizes` as the card in Selected Work, so the browser already has this image.
+// Gallery images occupy half the viewport on desktop and all of it on mobile.
 const CARD_SIZES = "(min-width: 768px) 50vw, 100vw";
 
 // Measure the actual image box, including the card's current parallax transform.
@@ -22,9 +24,6 @@ function measureOrigin(origin: HTMLElement) {
     imageHeight: (imageRect.height / rect.height) * 100,
   };
 }
-
-/** sessionStorage key for how far this case study is scrolled (survives a refresh). */
-export const scrollKey = (id: string) => `case-study-scroll:${id}`;
 
 type Props = {
   project: Project;
@@ -205,7 +204,7 @@ export default function CaseStudy({
     }
   }, [initialScroll]);
 
-  const close = contextSafe(() => {
+  const close = () => contextSafe(() => {
     if (!opened.current || closing.current) return;
     closing.current = true;
     root.current?.querySelectorAll("video").forEach((video) => video.pause());
@@ -271,7 +270,7 @@ export default function CaseStudy({
       }, "shrink")
       // Blend into the real card at the end, including its live hover treatment.
       .to(expander.current, { opacity: 0, duration: 0.15, ease: "power1.inOut" });
-  });
+  })();
 
   // Lock the page behind the overlay. It's fully covered, so also pause its
   // videos (the hero) instead of decoding them for nothing; resume on close.
@@ -288,7 +287,11 @@ export default function CaseStudy({
       // Read on purpose at cleanup time: Lenis is not a DOM node.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       lenisRef.current?.start();
-      paused.forEach((v) => v.play().catch(() => {}));
+      paused.forEach((v) => {
+        if (document.hidden) return;
+        if (v.hasAttribute("data-video") && (document.getElementById("works")?.getBoundingClientRect().top ?? 1) <= 0) return;
+        v.play().catch(() => {});
+      });
     };
   }, [lenisRef]);
 
@@ -331,10 +334,12 @@ export default function CaseStudy({
   // refresh/backgrounding so restoration still uses the latest position.
   useEffect(() => {
     const sc = scroller.current;
-    if (!sc) return;
+    const content = panel.current;
+    if (!sc || !content) return;
     let timer: number | undefined;
     let frame = 0;
     let isLight = false;
+    let threshold = content.offsetTop - 56;
     const save = () => {
       window.clearTimeout(timer);
       timer = undefined;
@@ -345,7 +350,8 @@ export default function CaseStudy({
     };
     const update = () => {
       frame = 0;
-      const next = sc.scrollTop > panel.current!.offsetTop - 56;
+      if (closing.current) return;
+      const next = sc.scrollTop > threshold;
       if (next !== isLight) {
         isLight = next;
         setLight(next);
@@ -356,6 +362,11 @@ export default function CaseStudy({
       // At most one write per 250ms, even during continuous scrolling.
       if (timer === undefined) timer = window.setTimeout(save, 250);
     };
+    const resizeObserver = new ResizeObserver(() => {
+      threshold = content.offsetTop - 56;
+      update();
+    });
+    resizeObserver.observe(sc);
     sc.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pagehide", save);
     document.addEventListener("visibilitychange", save);
@@ -363,6 +374,7 @@ export default function CaseStudy({
     return () => {
       save();
       cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
       sc.removeEventListener("scroll", onScroll);
       window.removeEventListener("pagehide", save);
       document.removeEventListener("visibilitychange", save);
@@ -583,7 +595,7 @@ export default function CaseStudy({
           fill
           priority
           quality={100}
-          sizes={CARD_SIZES}
+          sizes={WORK_COVER_SIZES}
           className="object-cover"
         />
         <HiResCover
@@ -633,7 +645,7 @@ export default function CaseStudy({
               src={cover}
               alt=""
               fill
-              sizes={CARD_SIZES}
+              sizes={WORK_COVER_SIZES}
               quality={100}
               className="object-cover"
             />

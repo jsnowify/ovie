@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  trailingSlash: true,
   images: {
     // Allow next/image to load files from our Cloudinary account only.
     remotePatterns: [
@@ -12,7 +13,7 @@ const nextConfig: NextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
     // Allow quality={100} on <Image>. Next only allows listed values (default is 75).
-    qualities: [75, 100],
+    qualities: [75, 90, 100],
   },
 };
 

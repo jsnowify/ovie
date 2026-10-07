@@ -1,5 +1,5 @@
 // Keeps the homepage scroll position across a browser refresh.
-// - While the page is scrolled we save window.scrollY in sessionStorage.
+// - Save periodically during scrolling and flush before leaving the page.
 // - The Loader restores it (behind the loading screen) after a reload.
 // - Saving only starts AFTER the restore, so the initial scrollY of 0 never
 //   overwrites the saved value.
@@ -57,18 +57,23 @@ export const restoreScroll = (lenis?: Lenis | null) => {
 export const startSavingScroll = () => {
   if (saving) return;
   saving = true;
-  let raf = 0;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const flush = () => {
+    clearTimeout(timer);
+    timer = undefined;
+    write();
+  };
   window.addEventListener(
     "scroll",
     () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        write();
-      });
+      if (timer !== undefined) return;
+      timer = setTimeout(flush, 250);
     },
     { passive: true },
   );
   // Last chance before the refresh actually happens.
-  window.addEventListener("pagehide", write);
+  window.addEventListener("pagehide", flush);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) flush();
+  });
 };

@@ -1,17 +1,19 @@
 "use client";
 
-import { useRef } from "react";
-import Image, { getImageProps } from "next/image";
+import { useEffect, useRef } from "react";
+import { getImageProps } from "next/image";
+import Image from "@/components/ui/AheadImage";
 import { gsap, useGSAP } from "@/lib/gsap";
 import RollText from "@/components/ui/RollText";
 import { useFitText } from "@/hooks/useFitText";
-import { useCaseStudy } from "@/providers/CaseStudyProvider";
+import { preloadCaseStudy, useCaseStudy } from "@/providers/CaseStudyProvider";
 import type { Project } from "@/data/projects";
+import { WORK_COVER_SIZES } from "@/lib/imageSizes";
 
 /** Parallax travel in % (the image drifts -PARALLAX to +PARALLAX while scrolling) */
 const PARALLAX = 8;
 
-export default function WorkCard({ project }: { project: Project }) {
+export default function WorkCard({ project, initial = false, frameClass = "aspect-[4/3] md:aspect-[4/5]" }: { project: Project; initial?: boolean; frameClass?: string }) {
   const ref = useRef<HTMLButtonElement>(null);
   const titleBox = useRef<HTMLHeadingElement>(null);
   const titleText = useRef<HTMLSpanElement>(null);
@@ -19,6 +21,7 @@ export default function WorkCard({ project }: { project: Project }) {
   const { open } = useCaseStudy();
   const warmed = useRef(false);
   const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   // Parallax: the picture drifts slowly against the scroll while the card is
   // on screen. Scrubbed, so it follows Lenis exactly. Same idea as the
@@ -53,6 +56,7 @@ export default function WorkCard({ project }: { project: Project }) {
   const warm = () => {
     if (warmed.current) return;
     warmed.current = true;
+    void preloadCaseStudy();
     const { props } = getImageProps({
       src: project.images[project.cover],
       alt: "",
@@ -79,17 +83,18 @@ export default function WorkCard({ project }: { project: Project }) {
       onPointerLeave={() => window.clearTimeout(timer.current)}
       onPointerDown={warm}
       onFocus={warm}
-      className="work-link group/roll relative block aspect-[4/3] w-full overflow-hidden bg-ink/10 text-left md:aspect-[4/5]"
+      className={`work-link group/roll relative block w-full overflow-hidden bg-ink/10 text-left ${frameClass}`}
     >
       {/* Taller than the card (130%, centered) so it can drift without ever
           showing an empty edge. The card clips it. */}
       <div data-parallax className="absolute inset-x-0 -top-[15%] h-[130%]">
         <Image
+          initial={initial}
           src={project.images[project.cover]}
           alt=""
           fill
           quality={100}
-          sizes="(min-width: 768px) 50vw, 100vw"
+          sizes={WORK_COVER_SIZES}
           className="object-cover"
         />
       </div>

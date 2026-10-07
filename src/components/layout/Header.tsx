@@ -12,7 +12,10 @@ export default function Header() {
   const root = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
-  const onLight = useOverLight("top"); // over the cream Selected Work panel
+  const logoControl = useRef<HTMLDivElement>(null);
+  const menuControl = useRef<HTMLDivElement>(null);
+  const logoOnLight = useOverLight(logoControl);
+  const menuOnLight = useOverLight(menuControl);
   const { ready } = useLoader();
 
   useGSAP(
@@ -41,7 +44,8 @@ export default function Header() {
   );
 
   // The open menu is always dark (ink), so keep the header light then.
-  const tone = open || !onLight ? "text-cream" : "text-ink";
+  const logoTone = open || !logoOnLight ? "text-cream" : "text-ink";
+  const menuTone = open || !menuOnLight ? "text-cream" : "text-ink";
 
   return (
     <>
@@ -50,12 +54,13 @@ export default function Header() {
       {/* pointer-events-none so the empty strip never blocks the overlay click */}
       <header
         ref={root}
-        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between px-gutter pt-5 transition-colors duration-300 md:pt-8 ${tone}`}
+        data-adaptive-ui
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between px-gutter pt-5 md:pt-8"
       >
-        <div data-rise className="pointer-events-auto">
+        <div ref={logoControl} data-rise className={`pointer-events-auto transition-colors duration-200 ${logoTone}`}>
           <Logo />
         </div>
-        <div data-rise className="pointer-events-auto">
+        <div ref={menuControl} data-rise className={`pointer-events-auto transition-colors duration-200 ${menuTone}`}>
           <MenuButton open={open} onClick={() => setOpen((v) => !v)} />
         </div>
       </header>

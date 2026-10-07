@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useLenis } from "@/providers/SmoothScroll";
 import { menu } from "@/config/site";
 import RollText from "@/components/ui/RollText";
+import { sectionHref } from "@/lib/navigation";
 
 type Props = { open: boolean; onClose: () => void };
 
@@ -17,6 +20,7 @@ export default function MenuPanel({ open, onClose }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const lenisRef = useLenis();
+  const pathname = usePathname();
   const [servicesOpen, setServicesOpen] = useState(false);
 
   // Build the enter/exit timeline once. Exit = the same timeline played in reverse.
@@ -79,6 +83,14 @@ export default function MenuPanel({ open, onClose }: Props) {
           }
 
           tlRef.current = tl;
+          // Rebuilding the timeline after a motion preference change must
+          // preserve the menu's current open/closed state.
+          if (root.current?.getAttribute("aria-hidden") === "false") {
+            gsap.set(root.current, { autoAlpha: 1 });
+            tl.play();
+          } else {
+            gsap.set(root.current, { autoAlpha: 0 });
+          }
         },
       );
 
@@ -115,19 +127,24 @@ export default function MenuPanel({ open, onClose }: Props) {
   }, [open, onClose]);
 
   const go = (e: React.MouseEvent, href: string) => {
-    e.preventDefault();
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     onClose();
     const lenis = lenisRef.current;
     lenis?.start();
-    lenis?.scrollTo(href);
+    if (href.startsWith("#") && lenis) {
+      e.preventDefault();
+      lenis.scrollTo(href);
+    }
   };
 
   return (
     <div
       ref={root}
       id="site-menu"
-      className="invisible fixed inset-0 z-40"
+      data-hover-disabled
+      className={`invisible fixed inset-0 z-40 ${open ? "" : "pointer-events-none"}`}
       aria-hidden={!open}
+      inert={!open || undefined}
     >
       {/* Overlay: click outside the panel to close */}
       <div
@@ -186,9 +203,9 @@ export default function MenuPanel({ open, onClose }: Props) {
                   <ul className="min-h-0 overflow-hidden">
                     {item.children.map((child) => (
                       <li key={child.label}>
-                        <a
-                          href={child.href}
-                          onClick={(e) => go(e, child.href)}
+                        <Link
+                          href={sectionHref(child.href, pathname)}
+                          onClick={(e) => go(e, sectionHref(child.href, pathname))}
                           className="group/sub relative inline-block py-1.5 pl-1 text-lg font-light text-cream/70 transition-colors duration-300 hover:text-cream"
                         >
                           {child.label}
@@ -197,7 +214,7 @@ export default function MenuPanel({ open, onClose }: Props) {
                             aria-hidden="true"
                             className={`absolute bottom-1.5 left-1 right-0 block h-px origin-right scale-x-0 bg-cream transition-transform duration-500 ${EASE} group-hover/sub:origin-left group-hover/sub:scale-x-100 group-focus-visible/sub:origin-left group-focus-visible/sub:scale-x-100 motion-reduce:transition-none`}
                           />
-                        </a>
+                        </Link>
                       </li>
                     ))}
                     <li aria-hidden="true" className="h-3" />
@@ -207,15 +224,15 @@ export default function MenuPanel({ open, onClose }: Props) {
             ) : (
               <li key={item.label} className="overflow-hidden">
                 <div data-item>
-                  <a
-                    href={item.href}
-                    onClick={(e) => go(e, item.href!)}
+                  <Link
+                    href={sectionHref(item.href!, pathname)}
+                    onClick={(e) => go(e, sectionHref(item.href!, pathname))}
                     className={`inline-block ${itemClass}`}
                   >
                     <RollText underline className="leading-[1.1]">
                       {item.label}
                     </RollText>
-                  </a>
+                  </Link>
                 </div>
               </li>
             ),

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
@@ -17,6 +18,7 @@ export default function SmoothScroll({
   children: React.ReactNode;
 }) {
   const lenisRef = useRef<Lenis | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const lenis = new Lenis({ lerp: 0.1 });
@@ -34,6 +36,16 @@ export default function SmoothScroll({
       lenisRef.current = null;
     };
   }, []);
+
+  // Shared layout providers survive navigation; update their measurements
+  // for the new page instead of retaining the homepage's scroll geometry.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      lenisRef.current?.resize();
+      ScrollTrigger.refresh();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
 
   return (
     <LenisContext.Provider value={lenisRef}>{children}</LenisContext.Provider>

@@ -87,7 +87,7 @@ export default function Hero() {
         </video>
         <div className="absolute inset-0 bg-ink/50" aria-hidden="true" />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/30"
+          className="absolute inset-0 bg-gradient-to-t from-ink/90 via-transparent to-ink/30"
           aria-hidden="true"
         />
 
@@ -105,7 +105,7 @@ export default function Hero() {
 
         <p
           data-rise
-          className="absolute bottom-6 left-gutter z-10 max-w-[19rem] text-[0.8rem] font-normal uppercase leading-[1.05] tracking-[-0.03em] md:bottom-8 md:text-sm"
+          className="absolute bottom-[calc(6rem+env(safe-area-inset-bottom))] left-gutter right-gutter z-10 max-w-[22rem] text-sm font-normal uppercase leading-[1.4] tracking-[-0.01em] [text-shadow:0_1px_8px_rgba(0,0,0,0.45)] md:bottom-8 md:right-auto md:max-w-[min(19rem,calc(50vw-8rem))]"
         >
           {hero.description}
         </p>

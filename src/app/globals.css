@@ -1,5 +1,42 @@
 @import "tailwindcss";
 
+/* Page navigation: two viewport snapshots slide past each other. */
+@keyframes page-slide-out {
+  to { transform: translateX(-100%); }
+}
+@keyframes page-slide-in {
+  from { transform: translateX(100%); }
+}
+@keyframes page-slide-out-back {
+  to { transform: translateX(100%); }
+}
+@keyframes page-slide-in-back {
+  from { transform: translateX(-100%); }
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation-duration: 0.75s;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  animation-fill-mode: both;
+}
+::view-transition-old(root) { animation-name: page-slide-out; }
+::view-transition-new(root) { animation-name: page-slide-in; }
+html[data-page-slide="back"]::view-transition-old(root) { animation-name: page-slide-out-back; }
+html[data-page-slide="back"]::view-transition-new(root) { animation-name: page-slide-in-back; }
+header[data-adaptive-ui] { view-transition-name: page-header; }
+::view-transition-group(page-header),
+::view-transition-old(page-header),
+::view-transition-new(page-header) { animation: none; }
+::view-transition-group(hover-label),
+::view-transition-old(hover-label),
+::view-transition-new(hover-label) { animation: none; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none; }
+}
+
 :root {
   --cream: #fff9e8;
   --ink: #28251d;
@@ -7,6 +44,30 @@
 
   /* Side spacing for all content. Backgrounds/video stay full width. */
   --gutter: 10px;
+}
+
+/* Two staggered blocks open, followed by the diagonal arrow. */
+[data-hover-text], [data-hover-arrow] {
+  clip-path: inset(100% 0 0);
+  transform: translateY(6px);
+  transition: clip-path 500ms cubic-bezier(0.22, 1, 0.36, 1), transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-hover-motion][data-visible="true"] [data-hover-text],
+[data-hover-motion][data-visible="true"] [data-hover-arrow] {
+  clip-path: inset(0);
+  transform: translateY(0);
+}
+[data-hover-motion][data-visible="true"] [data-hover-arrow] { transition-delay: 70ms; }
+[data-hover-arrow] svg {
+  transform: translate(-12px, 12px);
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-hover-motion][data-visible="true"] [data-hover-arrow] svg {
+  transform: translate(0);
+  transition-delay: 130ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-hover-text], [data-hover-arrow], [data-hover-arrow] svg { transition: none; }
 }
 
 @theme inline {
@@ -135,5 +196,21 @@ body::-webkit-scrollbar {
   .work-dim,
   .work-blur {
     transition: none;
+  }
+}
+
+/* CTA marquee: the track holds two identical groups, so sliding it left by
+   half its width (= one group) and starting over is invisible. */
+@keyframes cta-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.cta-marquee-track {
+  animation: cta-marquee 28s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-marquee-track {
+    animation: none;
   }
 }

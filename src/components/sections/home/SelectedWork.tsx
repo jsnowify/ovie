@@ -1,5 +1,6 @@
 import { projects } from "@/data/projects";
 import WorkCard from "@/components/sections/home/WorkCard";
+import Button from "@/components/ui/Button";
 
 // Two independent columns (not rows), so the lower works sit tight under the
 // ones above them. The right column starts lower for the staggered look.
@@ -20,7 +21,7 @@ export default function SelectedWork() {
     <section
       id="works"
       aria-labelledby="selected-work-title"
-      className="relative z-10 bg-cream px-gutter pb-gutter pt-20 text-ink shadow-[0_-24px_60px_rgba(0,0,0,0.3)] md:pt-32"
+      className="relative z-10 bg-cream px-gutter pb-16 pt-20 md:pb-24 text-ink shadow-[0_-24px_60px_rgba(0,0,0,0.3)] md:pt-32"
     >
       <h2
         id="selected-work-title"
@@ -43,12 +44,13 @@ export default function SelectedWork() {
                 style={{ order: projects.indexOf(project) }}
                 className="work"
               >
-                <WorkCard project={project} />
+                <WorkCard project={project} initial={projects.indexOf(project) < 2} />
               </li>
             ))}
           </ul>
         ))}
       </div>
+      <div className="mt-12 flex justify-end md:mt-20"><Button href="/work/">View all projects</Button></div>
     </section>
   );
 }

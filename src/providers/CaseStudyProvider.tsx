@@ -9,11 +9,15 @@ import {
   useRef,
   useState,
 } from "react";
-import CaseStudy, { scrollKey } from "@/components/case-study/CaseStudy";
+import dynamic from "next/dynamic";
+import { scrollKey } from "@/lib/caseStudyScroll";
 import { projects, type Project } from "@/data/projects";
 import { useLoader } from "@/providers/LoaderProvider";
 import { useLenis } from "@/providers/SmoothScroll";
 import { didRestoreScroll } from "@/lib/pageScroll";
+
+export const preloadCaseStudy = () => import("@/components/case-study/CaseStudy");
+const CaseStudy = dynamic(preloadCaseStudy, { ssr: false });
 
 type Active = {
   project: Project;

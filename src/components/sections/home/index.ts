@@ -1,3 +1,10 @@
 export { default as Hero } from "./Hero";
 export { default as SelectedWork } from "./SelectedWork";
 export { default as Introduction } from "./Introduction";
+export { default as Philosophy } from "./Philosophy";
+export { default as Marquee } from "./Marquee";
+export { default as Approach } from "./Approach";
+export { default as CtaMarquee } from "./CtaMarquee";
+export { default as About } from "./About";
+export { default as Services } from "./Services";
+export { default as Statement } from "./Statement";

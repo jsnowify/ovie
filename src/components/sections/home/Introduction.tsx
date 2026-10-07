@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useSyncExternalStore } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/AheadImage";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { intro } from "@/config/site";
 import { projects } from "@/data/projects";
@@ -66,7 +66,7 @@ function Slot({
 }
 
 /**
- * Introduction (#about). Comes right after Selected Work on the same cream
+ * Introduction (#introduction). Comes right after Selected Work on the same cream
  * background. Desktop: big image on the left, text + small image stacked on
  * the right. The left image starts level with the lead paragraph and ends
  * level with the caption. Mobile: everything stacks in reading order.
@@ -131,9 +131,9 @@ export default function Introduction() {
   return (
     <section
       ref={root}
-      id="about"
+      id="introduction"
       aria-labelledby="intro-title"
-      className="relative z-10 bg-cream px-gutter pb-gutter pt-20 text-ink md:pt-24"
+      className="relative z-10 bg-cream px-gutter pb-16 pt-20 md:pb-24 text-ink md:pt-24"
     >
       <div className="grid gap-gutter md:grid-cols-2 md:grid-rows-[auto_auto_auto_auto]">
         {/* Heading: top left, left aligned */}
@@ -147,7 +147,7 @@ export default function Introduction() {
         </h2>
 
         {/* Lead */}
-        <p className="overflow-hidden pb-[0.08em] text-[clamp(1rem,4.4vw,1.5rem)] font-normal uppercase leading-[1] tracking-[-0.045em] md:col-start-2 md:row-start-2 md:text-[1.7vw]">
+        <p className="overflow-hidden pb-[0.08em] text-[clamp(1rem,4.4vw,1.5rem)] font-normal leading-[1] tracking-[-0.045em] md:col-start-2 md:row-start-2 md:text-[1.7vw]">
           <span data-line className="block">
             {intro.lead}
           </span>
@@ -170,7 +170,7 @@ export default function Introduction() {
         />
 
         {/* Caption */}
-        <p className="overflow-hidden pb-[0.08em] text-[0.7rem] font-normal uppercase leading-[1.05] tracking-[-0.03em] md:col-start-2 md:row-start-4 md:text-[max(0.65rem,0.95vw)]">
+        <p className="overflow-hidden pb-[0.08em] text-[0.7rem] font-normal leading-[1.05] tracking-[-0.03em] md:col-start-2 md:row-start-4 md:text-[max(0.65rem,0.95vw)]">
           <span data-line className="block">
             {intro.caption}
           </span>
